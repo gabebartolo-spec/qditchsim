@@ -1,0 +1,23 @@
+{
+  "name": "qditchsim",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Unofficial, non-commercial quidditch management sim fan project.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "package:itch": "npm run build && node scripts/package-itch.mjs"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "bestzip": "^4.0.3",
+    "typescript": "~5.9",
+    "vite": "^8.3.4"
+  }
+}

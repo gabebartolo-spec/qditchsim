@@ -65,3 +65,5 @@ advances to the pro league.
 - 2026-10-14: Core test is "does it make the climb to a pro dynasty more meaningful?"
 - 2026-10-14: Free fan project using Harry Potter names; never sold.
 - 2026-10-14: First build is one match only, without dynamic camera moments.
+- 2026-10-14: Built in HTML with Three.js, TypeScript and Vite; hosted free on itch.io.
+- 2026-10-14: Desktop browser first; phones not required for now.

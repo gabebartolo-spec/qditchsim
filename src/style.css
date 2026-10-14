@@ -1,0 +1,26 @@
+/* Placeholder styling only. Replace once the art direction sheet exists. */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #222;
+  color: #ddd;
+  font-family: system-ui, sans-serif;
+}
+#match {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+#hud {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  pointer-events: none;
+}
+.tag {
+  margin: 0;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+}

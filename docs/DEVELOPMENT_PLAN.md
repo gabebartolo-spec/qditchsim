@@ -56,21 +56,19 @@ until its gate is passed.
   fan-project rule.
 - **Art direction sheet:** palette, line and shape style, how players, brooms, hoops, the
   pitch and the stands are drawn, and the UI typography. Golden Lap is the reference.
-- **Engine and stack choice.** Decided: the game is built in HTML and runs in the
-  browser. The engine within that is still open.
-- **Repo setup:** project skeleton, build script, a CLAUDE.md with the hard rules,
-  and a basic CI build.
+- **Engine and stack choice.** Decided: an HTML game using Three.js for the match,
+  plain HTML and CSS for menus, TypeScript, built with Vite.
+- **Repo setup (done):** project skeleton, `npm run package:itch` build script, a
+  CLAUDE.md with the hard rules, and a CI build. The current scene is a grey
+  placeholder proving the isometric camera and ground shadows work.
 - **Fan-project notice:** a README line saying this is an unofficial, non-commercial fan
   work and isn't affiliated with Warner Bros. or J.K. Rowling.
 
 ### Director decisions
 - The look. Palette, era feel and how characters and the pitch are drawn.
-- The engine. **Recommendation:** Three.js with a fixed orthographic camera for the
-  match, plain HTML and CSS for the management screens, and TypeScript built with Vite.
-  This fits if the art is flat, geometric shapes. If the director wants hand-drawn 2D
-  sprites, Phaser is the better fit.
-- Platforms. Decided: browser, hosted on itch.io. Whether it also needs to work on
-  phones is still open.
+- The engine. Decided: Three.js.
+- Platforms. Decided: desktop browser first, hosted on itch.io. Phones are not
+  required for now.
 - Whether the takedown risk of a fan project is accepted. This was raised but not
   confirmed.
 
@@ -275,6 +273,7 @@ Decided: the game is hosted on itch.io.
 | Match isn't fun | Nothing else matters | Phase 1 is a hard gate before any career work |
 | Height is hard to read in isometric | Matches confuse the player | Ground shadows, tested early in Phase 1 |
 | The Snitch decides every match | The dials feel pointless | Balance with batch sims in Phase 1 |
+| Three.js suits flat geometric art more than hand-drawn sprites | The chosen look could fight the engine | Settle the art direction early in Phase 0 |
 | Two projects at once | ARD and this split the director's time | Reuse ARD's tech, and keep each phase small |
 
 ---
@@ -295,5 +294,4 @@ Technical suggestions that keep the design rules safe. The director can overrule
 
 ## 12. Next actions
 1. Director writes or dictates the vision doc and the art direction for Phase 0.
-2. Director chooses the engine and platforms.
-3. Phase 0 tasks are assigned. Building starts only once the director assigns them.
+2. Phase 0 tasks are assigned. Building starts only once the director assigns them.
