@@ -82,6 +82,22 @@ Vision doc and art direction sheet are written and signed off by the director.
 **Goal:** prove that one match is fun to watch and to steer. Dynamic camera moments are
 deliberately left out of this phase.
 
+### Progress
+A first playable prototype exists. Everything below that the director hasn't decided is a
+labelled placeholder, listed in [PHASE1_PROVISIONAL.md](PHASE1_PROVISIONAL.md).
+
+- [x] Deterministic match simulation in `src/sim/`, separate from rendering
+- [x] Quaffle passing, tackles, shots, saves and goals
+- [x] Bludgers, Beater hits and stuns
+- [x] Snitch hiding, sightings, Seeker dives, escapes and the catch
+- [x] Three live dials for the player, and an opponent manager AI
+- [x] Isometric view with ground shadows, scoreboard, event feed and speed control
+- [x] Debug overlay (press D) and a batch balancing tool (`npm run batch`)
+- [x] Automated rule tests (`npm test`)
+- [ ] Fouls and penalties, waiting on the director
+- [ ] Real player stats and traits, waiting on the director
+- [ ] Director playtest and sign-off
+
 ### 4.1 Match simulation
 - Two teams of seven: three Chasers, two Beaters, one Keeper and one Seeker.
 - The Quaffle: Chasers pass, carry and shoot. Goals are worth 10 points.

@@ -9,8 +9,12 @@ team, win your way to the pro league, and build a dynasty.
 > their owners. The game will never be sold or monetised.
 
 ## Status
-Phase 0, foundations. The current build is a technical placeholder showing the isometric
-camera and the ground-shadow height cue. None of its art is final.
+Phase 1, the one-match prototype. You manage the Home team through a full match, steering
+it live with three tactical dials, against an AI opponent. All art and many rules are
+placeholders, listed in [docs/PHASE1_PROVISIONAL.md](docs/PHASE1_PROVISIONAL.md).
+
+Controls: drag the dials, use the speed buttons or Space to pause, and press D for the
+debug overlay. Add `?seed=123` to the URL to replay a specific match.
 
 - [Development plan](docs/DEVELOPMENT_PLAN.md)
 - [Concept brainstorm](docs/brainstorms/2026-10-14-quidditch-sim.md)
@@ -26,6 +30,8 @@ Requires Node 20 or later.
 npm install
 npm run dev           # local dev server with hot reload
 npm run typecheck     # TypeScript checks
+npm test              # rule tests
+npm run batch         # sim hundreds of matches and report balance
 npm run build         # production build into dist/
 npm run package:itch  # build, then zip into build/qditchsim-itch.zip
 ```

@@ -1,4 +1,5 @@
-/* Placeholder styling only. Replace once the art direction sheet exists. */
+/* PLACEHOLDER styling: neutral greys, system font. Replace once the art direction exists. */
+* { box-sizing: border-box; }
 html, body {
   margin: 0;
   height: 100%;
@@ -6,21 +7,111 @@ html, body {
   background: #222;
   color: #ddd;
   font-family: system-ui, sans-serif;
+  font-size: 14px;
 }
-#match {
-  display: block;
-  width: 100vw;
-  height: 100vh;
+#match { display: block; width: 100vw; height: 100vh; }
+#labels { position: fixed; inset: 0; pointer-events: none; }
+.role-label {
+  font: 600 11px system-ui, sans-serif;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1px 4px;
+  border-radius: 3px;
 }
-#hud {
+.panel-base, #scoreboard, #feed, #dials, #speed, #debug {
   position: fixed;
+  background: rgba(20, 20, 20, 0.82);
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+#scoreboard {
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 8px 16px;
+  font-size: 18px;
+}
+#score { font-weight: 700; font-variant-numeric: tabular-nums; }
+#clock { color: #999; font-size: 14px; font-variant-numeric: tabular-nums; }
+#feed {
   top: 12px;
   left: 12px;
+  width: 300px;
+  margin: 0;
+  padding: 8px 12px;
+  list-style: none;
+  max-height: 40vh;
+  overflow: hidden;
+}
+#feed li { padding: 3px 0; color: #bbb; }
+#feed li:first-child { color: #fff; }
+#feed time { color: #777; margin-right: 6px; font-variant-numeric: tabular-nums; }
+#dials {
+  right: 12px;
+  bottom: 12px;
+  width: 280px;
+  padding: 10px 14px;
+}
+#dials h2 { margin: 0 0 8px; font-size: 14px; }
+#dials label { display: block; margin: 10px 0; }
+#dials input { width: 100%; }
+.dial-name { display: block; font-weight: 600; }
+.ends { display: flex; justify-content: space-between; color: #999; font-size: 12px; }
+.provisional { font-weight: 400; font-size: 11px; color: #888; margin-left: 6px; }
+#speed {
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+}
+button {
+  background: #3a3a3a;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: #4a4a4a; }
+button[aria-pressed='true'] { background: #777; color: #111; }
+#debug {
+  top: 64px;
+  right: 12px;
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  max-width: 320px;
+  white-space: pre-wrap;
+}
+#end {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+#end[hidden] { display: none; }
+#end .panel {
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 24px 32px;
+  text-align: center;
+  min-width: 320px;
+}
+#placeholder-tag, #fan-notice {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 11px;
+  color: #888;
   pointer-events: none;
 }
-.tag {
-  margin: 0;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.5);
-  font-size: 13px;
-}
+#placeholder-tag { top: 58px; }
+#fan-notice { bottom: 4px; }

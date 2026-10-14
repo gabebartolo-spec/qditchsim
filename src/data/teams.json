@@ -1,0 +1,101 @@
+{
+  "_provisional": "Placeholder teams. Names and stats are not director-approved. Every player has identical stats so only the dials decide matches.",
+  "teams": [
+    {
+      "id": "home",
+      "name": "Home",
+      "players": [
+        {
+          "name": "Home Keeper",
+          "role": "keeper",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Home Chaser 1",
+          "role": "chaser",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Home Chaser 2",
+          "role": "chaser",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Home Chaser 3",
+          "role": "chaser",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Home Beater 1",
+          "role": "beater",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Home Beater 2",
+          "role": "beater",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Home Seeker",
+          "role": "seeker",
+          "speed": 5,
+          "skill": 5
+        }
+      ]
+    },
+    {
+      "id": "away",
+      "name": "Away",
+      "players": [
+        {
+          "name": "Away Keeper",
+          "role": "keeper",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Away Chaser 1",
+          "role": "chaser",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Away Chaser 2",
+          "role": "chaser",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Away Chaser 3",
+          "role": "chaser",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Away Beater 1",
+          "role": "beater",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Away Beater 2",
+          "role": "beater",
+          "speed": 5,
+          "skill": 5
+        },
+        {
+          "name": "Away Seeker",
+          "role": "seeker",
+          "speed": 5,
+          "skill": 5
+        }
+      ]
+    }
+  ]
+}

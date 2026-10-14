@@ -9,9 +9,60 @@
   </head>
   <body>
     <canvas id="match"></canvas>
-    <div id="hud">
-      <p class="tag">Placeholder art. The look is not defined yet.</p>
+    <div id="labels"></div>
+
+    <div id="scoreboard">
+      <span id="home-name"></span>
+      <span id="score"></span>
+      <span id="away-name"></span>
+      <span id="clock"></span>
     </div>
+
+    <ol id="feed" aria-live="polite"></ol>
+
+    <section id="dials" aria-label="Your tactics">
+      <h2>Your tactics <span class="provisional">placeholder controls</span></h2>
+      <label>
+        <span class="dial-name">Snitch timing</span>
+        <input type="range" id="dial-snitchTiming" min="0" max="1" step="0.05" />
+        <span class="ends"><span>Hold off</span><span>Go now</span></span>
+      </label>
+      <label>
+        <span class="dial-name">Beater targets</span>
+        <input type="range" id="dial-beaterTarget" min="0" max="1" step="0.05" />
+        <span class="ends"><span>Chasers</span><span>Seeker</span></span>
+      </label>
+      <label>
+        <span class="dial-name">Chasers</span>
+        <input type="range" id="dial-attack" min="0" max="1" step="0.05" />
+        <span class="ends"><span>Defend</span><span>Attack</span></span>
+      </label>
+    </section>
+
+    <div id="speed" role="group" aria-label="Match speed">
+      <button data-speed="0">Pause</button>
+      <button data-speed="1">1×</button>
+      <button data-speed="2">2×</button>
+      <button data-speed="4">4×</button>
+      <button data-speed="8">8×</button>
+      <button id="debug-toggle" title="Debug overlay (D)">Debug</button>
+    </div>
+
+    <pre id="debug" hidden></pre>
+
+    <div id="end" hidden>
+      <div class="panel">
+        <h2 id="end-title"></h2>
+        <p id="end-text"></p>
+        <button id="again">Play another match</button>
+      </div>
+    </div>
+
+    <p id="placeholder-tag">Placeholder art. The look is not defined yet.</p>
+    <p id="fan-notice">
+      Unofficial fan project. Not affiliated with Warner Bros. or J.K. Rowling. Free, never sold.
+    </p>
+
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

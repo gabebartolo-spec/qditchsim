@@ -1,0 +1,113 @@
+{
+  "_provisional": "Every value here is a PROVISIONAL placeholder chosen to make the prototype run. None is director-approved. See docs/PHASE1_PROVISIONAL.md.",
+  "tickSeconds": 0.1,
+  "pitch": {
+    "length": 150,
+    "width": 55,
+    "margin": 6,
+    "maxHeight": 30
+  },
+  "hoops": {
+    "inset": 8,
+    "spacing": 6,
+    "heights": [
+      12,
+      15,
+      12
+    ],
+    "ringRadius": 1.5
+  },
+  "points": {
+    "goal": 10,
+    "snitch": 150
+  },
+  "match": {
+    "capSeconds": 1800
+  },
+  "movement": {
+    "baseSpeed": 10,
+    "speedPerPoint": 1,
+    "accel": 4,
+    "arriveGain": 2,
+    "carrierSpeedFactor": 0.85
+  },
+  "keeper": {
+    "guardDistance": 3,
+    "grabZone": 25
+  },
+  "quaffle": {
+    "grabRange": 2.5,
+    "gravity": 4
+  },
+  "tackle": {
+    "range": 2.5,
+    "chancePerSecond": 0.9
+  },
+  "pass": {
+    "speed": 28,
+    "basePerSecond": 0.15,
+    "underPressurePerSecond": 1.2,
+    "pressureDistance": 6,
+    "interceptRange": 3,
+    "interceptChance": 0.3,
+    "catchBase": 0.85,
+    "catchPerSkill": 0.012
+  },
+  "shoot": {
+    "approachDistance": 10,
+    "rangeMin": 14,
+    "rangeMax": 30,
+    "perSecond": 0.8,
+    "speed": 32,
+    "missBase": 0.3,
+    "missPerSkill": 0.02,
+    "saveBase": 0.35,
+    "savePerSkill": 0.03,
+    "saveFalloff": 0.04
+  },
+  "restart": {
+    "afterGoal": 2,
+    "afterSave": 1
+  },
+  "bludger": {
+    "freeSpeed": 8,
+    "hitSpeed": 38,
+    "hitRange": 4,
+    "engageDistance": 25,
+    "maxTargetDistance": 45,
+    "flightTimeout": 2.5,
+    "hitBase": 0.45,
+    "hitPerSkill": 0.03,
+    "dodgePerSpeed": 0.025,
+    "protectRange": 8,
+    "protectReduction": 0.25,
+    "stunSeconds": 4,
+    "strayHitChance": 0.015,
+    "strayStunSeconds": 2,
+    "rehitCooldown": 3,
+    "swingPerSecond": 0.12
+  },
+  "snitch": {
+    "hiddenSpeed": 6,
+    "evadeSpeed": 12,
+    "noticeDistance": 35,
+    "sightPerSecond": 0.004,
+    "sightGrowthSeconds": 240,
+    "visibleMin": 6,
+    "visibleMax": 14,
+    "catchRange": 2,
+    "catchChance": 0.25,
+    "blockRange": 3,
+    "marginRange": 300,
+    "forceChaseAfter": 1200,
+    "hiddenForAtLeast": 90
+  },
+  "seeker": {
+    "patrolHeight": 22,
+    "shadowDistance": 10
+  },
+  "ai": {
+    "intervalSeconds": 12,
+    "jitter": 0.1
+  }
+}

@@ -26,5 +26,7 @@ in code or docs without the director.
 ## Checks before pushing
 ```
 npm run typecheck
+npm test
 npm run build
 ```
+Use `npm run batch` to check balance after changing anything in `src/data/rules.json`.

@@ -1,61 +1,66 @@
-import * as THREE from 'three';
-import { createIsoCamera, resizeIsoCamera } from './render/isoCamera';
+import { createMatch, step, setDials, DT, PLACEHOLDER_TEAMS, type MatchState } from './sim';
+import { MatchView, snapshot, type Snapshot } from './render/matchView';
+import { Hud } from './ui/hud';
 
-// Technical placeholder for Phase 0. It proves the isometric camera and the
-// ground-shadow height cue work. None of these shapes or colours are the game's look.
+const canvas = document.querySelector<HTMLCanvasElement>('#match')!;
+const labelHost = document.querySelector<HTMLElement>('#labels')!;
 
-const canvas = document.querySelector<HTMLCanvasElement>('#match');
-if (!canvas) throw new Error('Missing #match canvas');
+const newSeed = () => (Math.random() * 2 ** 31) | 0;
+const params = new URLSearchParams(location.search);
+let seed = params.has('seed') ? Number(params.get('seed')) : newSeed();
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// The player manages team 0. The opponent manager AI sets team 1's dials.
+let state: MatchState = createMatch({ seed, teams: PLACEHOLDER_TEAMS, aiTeams: [1] });
+let prev: Snapshot = snapshot(state);
+let speed = 1;
+let lastSpeed = 1;
+let debug = false;
+let acc = 0;
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x222222);
-
-const camera = createIsoCamera(90, window.innerWidth / window.innerHeight);
-
-// Placeholder pitch: a flat grey oval. Real dimensions and art come later.
-const pitch = new THREE.Mesh(
-  new THREE.CircleGeometry(1, 64),
-  new THREE.MeshBasicMaterial({ color: 0x555555 }),
-);
-pitch.scale.set(60, 30, 1);
-pitch.rotation.x = -Math.PI / 2;
-scene.add(pitch);
-
-// Placeholder flyer with a ground shadow. The gap between them shows height.
-const flyer = new THREE.Mesh(
-  new THREE.SphereGeometry(1.5, 16, 12),
-  new THREE.MeshBasicMaterial({ color: 0xcccccc }),
-);
-const shadow = new THREE.Mesh(
-  new THREE.CircleGeometry(1.5, 24),
-  new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 }),
-);
-shadow.rotation.x = -Math.PI / 2;
-shadow.position.y = 0.01;
-scene.add(flyer, shadow);
-
-function resize(): void {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  renderer.setSize(w, h, false);
-  resizeIsoCamera(camera, w / h);
-}
-window.addEventListener('resize', resize);
-resize();
-
-const clock = new THREE.Clock();
-renderer.setAnimationLoop(() => {
-  const t = clock.getElapsedTime();
-  const x = Math.cos(t * 0.5) * 40;
-  const z = Math.sin(t * 0.5) * 18;
-  const height = 6 + Math.sin(t * 1.3) * 5;
-  flyer.position.set(x, height, z);
-  shadow.position.set(x, 0.01, z);
-  // Shadow shrinks as the flyer climbs, so height reads at a glance.
-  const s = 1.2 - height / 20;
-  shadow.scale.set(s, s, 1);
-  renderer.render(scene, camera);
+const view = new MatchView(canvas, labelHost, state);
+const hud = new Hud({
+  onDial: (d) => setDials(state, 0, d),
+  onSpeed: (s) => {
+    if (s < 0) s = speed === 0 ? lastSpeed : 0; // Space toggles pause.
+    if (s > 0) lastSpeed = s;
+    speed = s;
+    hud.setSpeed(speed);
+  },
+  onDebug: () => {
+    debug = !debug;
+    view.setDebug(debug);
+    hud.setDebugVisible(debug);
+  },
+  onAgain: () => {
+    seed = newSeed();
+    state = createMatch({ seed, teams: PLACEHOLDER_TEAMS, aiTeams: [1] });
+    prev = snapshot(state);
+    acc = 0;
+    hud.reset(state);
+  },
 });
+hud.reset(state);
+hud.setSpeed(speed);
+
+window.addEventListener('resize', () => view.resize());
+view.resize();
+
+const MAX_STEPS_PER_FRAME = 200;
+let last = performance.now();
+function frame(now: number) {
+  const realDt = Math.min(0.25, (now - last) / 1000);
+  last = now;
+  acc += realDt * speed;
+  let steps = 0;
+  while (acc >= DT && !state.over && steps < MAX_STEPS_PER_FRAME) {
+    prev = snapshot(state);
+    step(state);
+    acc -= DT;
+    steps++;
+  }
+  if (state.over) acc = 0;
+  view.render(prev, state, state.over ? 1 : Math.min(1, acc / DT));
+  hud.update(state, seed, debug);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
