@@ -56,7 +56,8 @@ until its gate is passed.
   fan-project rule.
 - **Art direction sheet:** palette, line and shape style, how players, brooms, hoops, the
   pitch and the stands are drawn, and the UI typography. Golden Lap is the reference.
-- **Engine and stack choice.**
+- **Engine and stack choice.** Decided: the game is built in HTML and runs in the
+  browser. The engine within that is still open.
 - **Repo setup:** project skeleton, build script, a CLAUDE.md with the hard rules,
   and a basic CI build.
 - **Fan-project notice:** a README line saying this is an unofficial, non-commercial fan
@@ -64,9 +65,12 @@ until its gate is passed.
 
 ### Director decisions
 - The look. Palette, era feel and how characters and the pitch are drawn.
-- The engine. **Recommendation:** reuse the engine and stack from Aussie Rules Dynasties
-  so that sim, UI and save-file code can be shared or learned from.
-- Platforms. For example PC only, web, or mobile.
+- The engine. **Recommendation:** Three.js with a fixed orthographic camera for the
+  match, plain HTML and CSS for the management screens, and TypeScript built with Vite.
+  This fits if the art is flat, geometric shapes. If the director wants hand-drawn 2D
+  sprites, Phaser is the better fit.
+- Platforms. Decided: browser, hosted on itch.io. Whether it also needs to work on
+  phones is still open.
 - Whether the takedown risk of a fan project is accepted. This was raised but not
   confirmed.
 
@@ -254,11 +258,11 @@ house team to pro titles.
 - [ ] No monetisation of any kind.
 - [ ] No official Warner Bros. or Harry Potter logos or copied artwork. Use original art
       only.
-- [ ] Build distributed free on the director's chosen platform, for example itch.io or
-      GitHub Releases.
+- [ ] Build distributed free on itch.io as an HTML game: a zip with `index.html` at the
+      root, using only relative asset paths.
 - [ ] A plan for a takedown request, such as renaming to original names, already drafted.
 
-**Director decision:** where the game is published.
+Decided: the game is hosted on itch.io.
 
 ---
 
