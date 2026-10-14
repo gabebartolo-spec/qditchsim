@@ -33,6 +33,28 @@ These are placeholder rules. The director decides what each dial should mean.
   shooting range and raises how often they shoot. Below 0.35 one Chaser stays back as a
   safety.
 
+## The Snitch chase
+
+**Decided by the director:** the chase is a second phase. The first Seeker to spot the
+Snitch gets a head start. Quaffle play continues. The opposition can stop the chase with
+Bludgers, their Seeker cutting in, and players blocking the path. The manager gets
+chase-only calls. A failed chase leaves the Seeker shaken.
+
+**Placeholders inside that structure:**
+
+| Area | What the prototype does for now |
+|---|---|
+| The head start | The rival Seeker can't react for 1.5 seconds |
+| Beater call | Keep playing, escort our Seeker, or attack their Seeker |
+| Blocker call | Send none, one or two Chasers to block the rival Seeker |
+| Blocking effect | An opposing player near a chasing Seeker slows them to 75% speed |
+| Escort effect | Escorting Beaters cut the Bludger hit chance on your Seeker, but stop swinging |
+| Attack effect | Attacking Beaters swing five times as often, only at the rival Seeker |
+| Shaken | 90 seconds at 40% of the normal spotting chance |
+| Chase speed | The game drops to 1× when a chase starts, so you can make calls |
+| Chase calls persist | Your calls stay set between chases in the same match |
+| The Snitch timing dial | Still decides whether your Seeker commits once the chase starts |
+
 ## Other placeholder rules
 
 - **The Snitch stays hidden for at least 90 seconds,** and gets easier to spot as the match
@@ -45,23 +67,39 @@ These are placeholder rules. The director decides what each dial should mean.
 
 ## Balance findings for the director
 
-From `npm run batch` with 120 to 150 matches per setting and identical teams:
+From `npm run batch` with 150 matches per setting and identical teams:
 
 | Measure | Result |
 |---|---|
 | Median match length | About 5 minutes |
-| Goals per match | About 13 in total |
-| Bludger hits per match | About 35 |
-| Home win rate with equal dials | About 50%, so no side bias |
-| Matches won by the team that caught the Snitch | **100%** |
+| Goals per match | About 11 in total |
+| Snitch chases per match | About 2.4 |
+| Median chase length | About 16 seconds |
+| Chases that end in a catch | About 42% |
+| Catches made by the Seeker with the head start | About 60% |
+| Home win rate with equal settings | About 50%, so no side bias |
 
-**The Snitch decides every match.** With about 13 goals in a match, teams are rarely 15
-goals apart, so the 150-point catch always wins. This makes the Snitch timing dial matter
-only in rare games, and makes Chaser play feel secondary. Options for the director to
-consider: more goals per match, a smaller Snitch value, or accept it as part of the
-fiction. This is a design call, so it hasn't been changed.
+**The chase made the Snitch contested.** The head start matters, but four in ten catches
+go to the Seeker who was behind, and most chases fail.
 
-The other two dials do change results:
-- **Beater targets** shifts hits clearly between the enemy Seeker and the Chasers.
+**The chase calls change results.** Home's win rate when the away team plays normally:
+
+| Home's chase calls | Home win rate |
+|---|---|
+| Keep playing, no blockers | About 47% |
+| Attack their Seeker | About 59% |
+| Two blockers | About 55% |
+| Attack and two blockers | About 66% |
+
+**Escort is the counter to attack.** Against an attacking opponent, escorting lifts home's
+win rate from about 34% to 48%.
+
+**Still true: the catch decides the match.** The team that catches the Snitch still wins
+every match, because the goal gap rarely reaches 150. The chase makes that catch earned
+rather than random. Whether goals should matter more is still the director's call.
+
+The original dials still work:
+- **Beater targets** shifts hits between the enemy Seeker and the Chasers.
 - **Attack** moves your goals from about 1 per match at full defence to about 10 at full
   attack.
+- **Snitch timing** only matters in the rare games where a team trails badly.

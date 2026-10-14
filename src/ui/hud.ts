@@ -1,4 +1,4 @@
-import type { Dials, MatchEvent, MatchState } from '../sim';
+import type { ChaseCalls, Dials, MatchEvent, MatchState } from '../sim';
 
 const $ = <T extends HTMLElement>(sel: string) => {
   const el = document.querySelector<T>(sel);
@@ -17,6 +17,7 @@ export const formatClock = (t: number) => {
 
 export interface HudCallbacks {
   onDial(dials: Partial<Dials>): void;
+  onChaseCalls(calls: Partial<ChaseCalls>): void;
   onSpeed(speed: number): void;
   onDebug(): void;
   onAgain(): void;
@@ -33,6 +34,12 @@ export class Hud {
         cb.onDial({ [key]: Number((e.target as HTMLInputElement).value) });
       });
     }
+    document.querySelectorAll<HTMLButtonElement>('[data-beaters]').forEach((b) =>
+      b.addEventListener('click', () => cb.onChaseCalls({ beaters: b.dataset.beaters as ChaseCalls['beaters'] })),
+    );
+    document.querySelectorAll<HTMLButtonElement>('[data-blockers]').forEach((b) =>
+      b.addEventListener('click', () => cb.onChaseCalls({ blockers: Number(b.dataset.blockers) as ChaseCalls['blockers'] })),
+    );
     document.querySelectorAll<HTMLButtonElement>('#speed [data-speed]').forEach((b) =>
       b.addEventListener('click', () => cb.onSpeed(Number(b.dataset.speed))),
     );
@@ -76,6 +83,21 @@ export class Hud {
       if (FEED_TYPES.has(e.type)) this.pushFeed(e);
     }
 
+    const inChase = s.chase !== null && !s.over;
+    $('#chase-calls').hidden = !inChase;
+    $('#chase-banner').hidden = !inChase;
+    if (inChase) {
+      const leader = s.teams[s.chase!.leader].name;
+      $('#chase-banner').textContent = `Snitch chase! ${leader} Seeker has the head start`;
+      const calls = s.chaseCalls[0];
+      document.querySelectorAll<HTMLButtonElement>('[data-beaters]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.beaters === calls.beaters)),
+      );
+      document.querySelectorAll<HTMLButtonElement>('[data-blockers]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(Number(b.dataset.blockers) === calls.blockers)),
+      );
+    }
+
     if (s.over && $('#end').hidden) {
       $('#end-title').textContent =
         s.winner === null ? 'Draw' : s.winner === 0 ? `${s.teams[0].name} win` : `${s.teams[1].name} win`;
@@ -91,6 +113,8 @@ export class Hud {
         `${s.teams[0].name}: ${d(s.dials[0])}`,
         `${s.teams[1].name} (AI): ${d(s.dials[1])}`,
         `Snitch ${s.snitch.visibleFor > 0 ? `visible ${s.snitch.visibleFor.toFixed(1)}s` : 'hidden'}  chasing ${s.seekerChasing}`,
+        `Chase ${s.chase ? `led by ${s.teams[s.chase.leader].name}` : 'none'}  calls ${JSON.stringify(s.chaseCalls)}`,
+        `Shaken ${s.shakenFor.map((x) => x.toFixed(0)).join(' / ')}s`,
         `Quaffle holder ${s.quaffle.holder === null ? '-' : s.players[s.quaffle.holder].def.name}`,
         '',
         ...recent,

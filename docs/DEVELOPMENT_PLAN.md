@@ -91,6 +91,8 @@ labelled placeholder, listed in [PHASE1_PROVISIONAL.md](PHASE1_PROVISIONAL.md).
 - [x] Bludgers, Beater hits and stuns
 - [x] Snitch hiding, sightings, Seeker dives, escapes and the catch
 - [x] Three live dials for the player, and an opponent manager AI
+- [x] Snitch chase as a second phase: head start, blocking, Bludgers, chase calls,
+      shaken Seekers
 - [x] Isometric view with ground shadows, scoreboard, event feed and speed control
 - [x] Debug overlay (press D) and a batch balancing tool (`npm run batch`)
 - [x] Automated rule tests (`npm test`)

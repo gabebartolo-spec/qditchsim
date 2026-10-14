@@ -1,4 +1,4 @@
-import { createMatch, step, setDials, DT, PLACEHOLDER_TEAMS, type MatchState } from './sim';
+import { createMatch, step, setDials, setChaseCalls, DT, PLACEHOLDER_TEAMS, type MatchState } from './sim';
 import { MatchView, snapshot, type Snapshot } from './render/matchView';
 import { Hud } from './ui/hud';
 
@@ -20,6 +20,7 @@ let acc = 0;
 const view = new MatchView(canvas, labelHost, state);
 const hud = new Hud({
   onDial: (d) => setDials(state, 0, d),
+  onChaseCalls: (c) => setChaseCalls(state, 0, c),
   onSpeed: (s) => {
     if (s < 0) s = speed === 0 ? lastSpeed : 0; // Space toggles pause.
     if (s > 0) lastSpeed = s;
@@ -54,9 +55,17 @@ function frame(now: number) {
   let steps = 0;
   while (acc >= DT && !state.over && steps < MAX_STEPS_PER_FRAME) {
     prev = snapshot(state);
+    const wasChase = state.chase !== null;
     step(state);
     acc -= DT;
     steps++;
+    // PROVISIONAL: drop to 1x when a chase starts so the manager can make chase calls.
+    if (!wasChase && state.chase !== null && speed > 1) {
+      speed = 1;
+      hud.setSpeed(speed);
+      acc = 0;
+      break;
+    }
   }
   if (state.over) acc = 0;
   view.render(prev, state, state.over ? 1 : Math.min(1, acc / DT));

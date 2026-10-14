@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createMatch, simulate, setDials, RULES, PLACEHOLDER_TEAMS, type TeamDef } from './index';
+import { createMatch, simulate, step, setDials, RULES, PLACEHOLDER_TEAMS, type TeamDef } from './index';
 
 const play = (seed: number) => simulate(createMatch({ seed, teams: PLACEHOLDER_TEAMS, aiTeams: [1] }));
 
@@ -53,5 +53,56 @@ describe('match simulation', () => {
   it('rejects a team without the right positions', () => {
     const bad: TeamDef = { ...PLACEHOLDER_TEAMS[0], players: PLACEHOLDER_TEAMS[0].players.slice(1) };
     expect(() => createMatch({ seed: 1, teams: [bad, PLACEHOLDER_TEAMS[1]] })).toThrow(/keeper/);
+  });
+
+  it('starts a chase on a sighting, led by the spotting team', () => {
+    const m = createMatch({ seed: 3, teams: PLACEHOLDER_TEAMS });
+    while (!m.over && !m.chase) step(m);
+    const sighting = m.events.find((e) => e.type === 'snitchSighted')!;
+    expect(m.chase).not.toBeNull();
+    expect(m.chase!.leader).toBe(sighting.team);
+  });
+
+  it('gives the spotting Seeker a head start before the rival can chase', () => {
+    for (let seed = 300; seed < 320; seed++) {
+      const m = createMatch({ seed, teams: PLACEHOLDER_TEAMS });
+      while (!m.over && !m.chase) step(m);
+      if (m.over) continue;
+      const { leader, startedAt } = m.chase!;
+      const rival = leader === 0 ? 1 : 0;
+      while (!m.over && m.chase && m.t < startedAt + RULES.chase.rivalReactionSeconds - RULES.tickSeconds) {
+        step(m);
+        expect(m.seekerChasing[rival]).toBe(false);
+      }
+    }
+  });
+
+  it('only catches the Snitch during a chase', () => {
+    for (let seed = 400; seed < 420; seed++) {
+      const m = createMatch({ seed, teams: PLACEHOLDER_TEAMS });
+      while (!m.over) {
+        const inChase = m.chase !== null;
+        step(m);
+        if (m.events.at(-2)?.type === 'snitchCaught') expect(inChase).toBe(true);
+      }
+    }
+  });
+
+  it('shakes every Seeker who chased when the Snitch escapes', () => {
+    for (let seed = 500; seed < 540; seed++) {
+      const m = createMatch({ seed, teams: PLACEHOLDER_TEAMS });
+      while (!m.over) {
+        const chasers = [...m.seekerChasing];
+        step(m);
+        if (m.events.at(-1)?.type === 'snitchLost' && m.events.at(-1)!.t === m.t) {
+          expect(m.chase).toBeNull();
+          chasers.forEach((c, t) => {
+            if (c) expect(m.shakenFor[t]).toBeCloseTo(RULES.chase.shakenSeconds, 5);
+          });
+          return;
+        }
+      }
+    }
+    throw new Error('No escape happened in the sampled seeds');
   });
 });

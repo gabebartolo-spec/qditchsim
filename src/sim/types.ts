@@ -31,6 +31,23 @@ export interface Dials {
   attack: number;
 }
 
+/** What a team's Beaters do during a Snitch chase. PROVISIONAL set of calls. */
+export type BeaterCall = 'play' | 'escort' | 'attack';
+
+/** The manager's chase-only calls. PROVISIONAL: the director chose "new chase calls"; these specifics are placeholders. */
+export interface ChaseCalls {
+  /** play = keep following the Beater dial, escort = guard your Seeker, attack = Bludgers at their Seeker. */
+  beaters: BeaterCall;
+  /** How many Chasers leave the Quaffle game to block the rival Seeker's path. */
+  blockers: 0 | 1 | 2;
+}
+
+export interface ChaseState {
+  /** The team whose Seeker spotted the Snitch first and has the head start. */
+  leader: TeamSide;
+  startedAt: number;
+}
+
 export interface PlayerState {
   id: number;
   team: TeamSide;

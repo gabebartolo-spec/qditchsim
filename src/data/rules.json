@@ -93,8 +93,8 @@
     "noticeDistance": 35,
     "sightPerSecond": 0.004,
     "sightGrowthSeconds": 240,
-    "visibleMin": 6,
-    "visibleMax": 14,
+    "visibleMin": 14,
+    "visibleMax": 24,
     "catchRange": 2,
     "catchChance": 0.25,
     "blockRange": 3,
@@ -109,5 +109,17 @@
   "ai": {
     "intervalSeconds": 12,
     "jitter": 0.1
+  },
+  "chase": {
+    "_note": "PROVISIONAL. Snitch chase phase: director decided the structure; these numbers are placeholders.",
+    "rivalReactionSeconds": 1.5,
+    "blockRange": 3.5,
+    "blockSlowFactor": 0.75,
+    "escortReduction": 0.35,
+    "shakenSeconds": 90,
+    "shakenSightFactor": 0.4,
+    "spawnMin": 10,
+    "spawnMax": 18,
+    "attackSwingMultiplier": 5
   }
 }

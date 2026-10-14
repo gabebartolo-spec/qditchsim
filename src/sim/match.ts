@@ -3,6 +3,8 @@ import { Rng } from './rng';
 import * as V from './vec';
 import { clampN, lerpN } from './vec';
 import type {
+  ChaseCalls,
+  ChaseState,
   Dials,
   MatchEvent,
   MatchEventType,
@@ -33,6 +35,11 @@ export interface MatchState {
   aiTeams: TeamSide[];
   aiTimer: number;
   seekerChasing: [boolean, boolean];
+  /** Non-null during the Snitch chase, the match's second phase. */
+  chase: ChaseState | null;
+  chaseCalls: [ChaseCalls, ChaseCalls];
+  /** Seconds each team's Seeker stays shaken after a failed chase. */
+  shakenFor: [number, number];
   restartTimer: number;
   events: MatchEvent[];
   over: boolean;
@@ -43,6 +50,7 @@ export interface MatchOptions {
   seed: number;
   teams: [TeamDef, TeamDef];
   dials?: [Dials, Dials];
+  chaseCalls?: [ChaseCalls, ChaseCalls];
   /** Teams whose dials are set by the opponent-manager AI. */
   aiTeams?: TeamSide[];
 }
@@ -74,6 +82,7 @@ export function clampToPitch(pos: Vec3): Vec3 {
 }
 
 export const defaultDials = (): Dials => ({ snitchTiming: 0.5, beaterTarget: 0.5, attack: 0.5 });
+export const defaultChaseCalls = (): ChaseCalls => ({ beaters: 'play', blockers: 0 });
 
 const byRole = (s: MatchState, team: TeamSide, role: Role) =>
   s.players.filter((p) => p.team === team && p.def.role === role);
@@ -147,6 +156,9 @@ export function createMatch(o: MatchOptions): MatchState {
     aiTeams: o.aiTeams ?? [],
     aiTimer: 0,
     seekerChasing: [false, false],
+    chase: null,
+    chaseCalls: o.chaseCalls ?? [defaultChaseCalls(), defaultChaseCalls()],
+    shakenFor: [0, 0],
     restartTimer: 0,
     events: [],
     over: false,
@@ -163,12 +175,32 @@ export function setDials(s: MatchState, team: TeamSide, dials: Partial<Dials>): 
   };
 }
 
+export function setChaseCalls(s: MatchState, team: TeamSide, calls: Partial<ChaseCalls>): void {
+  s.chaseCalls[team] = { ...s.chaseCalls[team], ...calls };
+}
+
+/** True while this team's Seeker is in the chase. */
+const chasing = (s: MatchState, team: TeamSide) => s.chase !== null && s.seekerChasing[team];
+
+/** Chasers this team has sent to block the rival Seeker, nearest first. */
+function blockersOf(s: MatchState, team: TeamSide): PlayerState[] {
+  const n = s.chaseCalls[team].blockers;
+  if (!n || !chasing(s, other(team))) return [];
+  const rival = seekerOf(s, other(team));
+  const q = s.quaffle;
+  return byRole(s, team, 'chaser')
+    .filter((c) => active(c) && c.id !== q.holder && c.id !== q.flight?.receiver)
+    .sort((a, b) => V.dist(a.pos, rival.pos) - V.dist(b.pos, rival.pos))
+    .slice(0, n);
+}
+
 // ---------- main step ----------
 
 export function step(s: MatchState): void {
   if (s.over) return;
   s.t += DT;
   s.restartTimer = Math.max(0, s.restartTimer - DT);
+  s.shakenFor = [Math.max(0, s.shakenFor[0] - DT), Math.max(0, s.shakenFor[1] - DT)];
   updateAi(s);
   updateSeekerIntent(s);
   for (const p of s.players) {
@@ -209,7 +241,16 @@ function updateAi(s: MatchState) {
     const beaterTarget = s.seekerChasing[other(team)] || (enemyLeads && s.t > 600) ? 0.8 : 0.35;
     const attack = diff < 0 ? 0.7 : diff > 30 ? 0.35 : 0.5;
     setDials(s, team, { snitchTiming: snitchTiming + j(), beaterTarget: beaterTarget + j(), attack: attack + j() });
+    if (s.chase) aiChaseCalls(s, team);
   }
+}
+
+function aiChaseCalls(s: MatchState, team: TeamSide) {
+  const ours = s.seekerChasing[team] || s.chase?.leader === team;
+  const theirs = s.seekerChasing[other(team)] || s.chase?.leader === other(team);
+  if (ours && !theirs) setChaseCalls(s, team, { beaters: 'escort', blockers: 0 });
+  else if (theirs && !ours) setChaseCalls(s, team, { beaters: 'attack', blockers: s.rng.chance(0.5) ? 2 : 1 });
+  else setChaseCalls(s, team, { beaters: s.rng.chance(0.5) ? 'attack' : 'escort', blockers: s.rng.chance(0.5) ? 1 : 0 });
 }
 
 // ---------- movement ----------
@@ -223,6 +264,8 @@ function movePlayer(s: MatchState, p: PlayerState, target: Vec3) {
     mul = 0.3;
   } else if (s.quaffle.holder === p.id) {
     mul = RULES.movement.carrierSpeedFactor;
+  } else if (p.def.role === 'seeker' && chasing(s, p.team) && isBlocked(s, p)) {
+    mul = RULES.chase.blockSlowFactor;
   }
   const max = maxSpeed(p) * mul;
   const d = V.sub(target, p.pos);
@@ -231,6 +274,13 @@ function movePlayer(s: MatchState, p: PlayerState, target: Vec3) {
   const desired = dl > 1e-6 ? V.scale(d, desiredSpeed / dl) : V.v3();
   p.vel = V.lerp(p.vel, desired, Math.min(1, RULES.movement.accel * DT));
   p.pos = clampToPitch(V.add(p.pos, V.scale(p.vel, DT)));
+}
+
+/** A chasing Seeker is slowed when an opposing player is in their path. */
+function isBlocked(s: MatchState, sk: PlayerState): boolean {
+  return s.players.some(
+    (o) => o.team !== sk.team && o.def.role !== 'seeker' && active(o) && V.dist(o.pos, sk.pos) < RULES.chase.blockRange,
+  );
 }
 
 function possession(s: MatchState): TeamSide | null {
@@ -266,6 +316,12 @@ function chaserTarget(s: MatchState, p: PlayerState): Vec3 {
     return V.v3(oppX - dir * RULES.shoot.approachDistance, 13, Math.sin(s.t * 0.7 + p.id) * 8);
   }
   if (q.flight && q.flight.receiver === p.id) return q.flight.to;
+
+  // Chase call: blockers leave the Quaffle game to cut off the rival Seeker.
+  if (blockersOf(s, team).includes(p)) {
+    const rival = seekerOf(s, other(team));
+    return V.lerp(rival.pos, s.snitch.pos, 0.3);
+  }
 
   if (poss === team) {
     const ref = q.holder !== null ? q.pos : q.flight!.to;
@@ -304,6 +360,16 @@ function beaterTarget(s: MatchState, p: PlayerState): Vec3 {
   const beaters = byRole(s, p.team, 'beater');
   const b = s.bludgers[beaters.indexOf(p) % s.bludgers.length];
   const q = s.quaffle;
+  const call = s.chaseCalls[p.team].beaters;
+  if (call === 'escort' && chasing(s, p.team)) {
+    const own = seekerOf(s, p.team);
+    return V.add(own.pos, V.v3(0, 1, beaters.indexOf(p) === 0 ? -2.5 : 2.5));
+  }
+  if (call === 'attack' && chasing(s, other(p.team))) {
+    const rival = seekerOf(s, other(p.team));
+    if (!b.flight && V.dist(p.pos, b.pos) < RULES.bludger.engageDistance) return b.pos;
+    return V.lerp(rival.pos, b.pos, 0.5);
+  }
   const protect =
     q.holder !== null && s.players[q.holder].team === p.team ? s.players[q.holder] : seekerOf(s, p.team);
   if (!b.flight && V.dist(p.pos, b.pos) < RULES.bludger.engageDistance) return b.pos;
@@ -334,7 +400,10 @@ function updateSeekerIntent(s: MatchState) {
     const sk = seekerOf(s, team);
     let chase = false;
     if (sn.visibleFor > 0 && active(sk)) {
-      const sees = sn.seenBy[team] || V.dist(sk.pos, sn.pos) < RULES.snitch.noticeDistance || prev[other(team)];
+      // Head start: the rival Seeker reacts a moment after the spotter.
+      const reacted = !s.chase || s.chase.leader === team || s.t >= s.chase.startedAt + RULES.chase.rivalReactionSeconds;
+      const sees =
+        reacted && (sn.seenBy[team] || V.dist(sk.pos, sn.pos) < RULES.snitch.noticeDistance || prev[other(team)]);
       if (sees) {
         sn.seenBy[team] = true;
         const margin = s.score[team] + RULES.points.snitch - s.score[other(team)];
@@ -549,6 +618,7 @@ function chooseBludgerTarget(s: MatchState, beater: PlayerState): PlayerState | 
   chasers.sort((a, b) => V.dist(a.pos, beater.pos) - V.dist(b.pos, beater.pos));
   const chaserPick = carrier && active(carrier) && V.dist(carrier.pos, beater.pos) < maxD ? carrier : chasers[0] ?? null;
   const seekerOk = active(seeker) && V.dist(seeker.pos, beater.pos) < maxD;
+  if (s.chaseCalls[beater.team].beaters === 'attack' && chasing(s, enemy)) return seekerOk ? seeker : null;
   const wantSeeker = s.rng.chance(s.dials[beater.team].beaterTarget);
   if (wantSeeker && seekerOk) return seeker;
   return chaserPick ?? (seekerOk ? seeker : null);
@@ -570,7 +640,13 @@ function updateBludgers(s: MatchState) {
         const beater = s.players[f.beater];
         let p = B.hitBase + beater.def.skill * B.hitPerSkill - T.def.speed * B.dodgePerSpeed;
         const guarded = byRole(s, T.team, 'beater').some((g) => active(g) && V.dist(g.pos, T.pos) < B.protectRange);
-        if (guarded) p -= B.protectReduction;
+        const escorted =
+          T.def.role === 'seeker' &&
+          chasing(s, T.team) &&
+          s.chaseCalls[T.team].beaters === 'escort' &&
+          byRole(s, T.team, 'beater').some((g) => active(g) && V.dist(g.pos, T.pos) < B.protectRange);
+        if (escorted) p -= RULES.chase.escortReduction;
+        else if (guarded) p -= B.protectReduction;
         if (active(T) && s.rng.chance(p)) {
           T.stunnedFor = B.stunSeconds;
           emit(s, 'bludgerHit', `Bludger hits ${T.def.name}!`, beater.team, T.id);
@@ -616,7 +692,11 @@ function updateBludgers(s: MatchState) {
     if (s.rng.chance(0.5)) beaters.reverse();
     for (const beater of beaters) {
       if (V.dist(beater.pos, b.pos) > B.hitRange) continue;
-      if (!s.rng.chance(B.swingPerSecond * DT)) continue;
+      const call = s.chaseCalls[beater.team].beaters;
+      if (call === 'escort' && chasing(s, beater.team)) continue;
+      const attacking = call === 'attack' && chasing(s, other(beater.team));
+      const swingRate = B.swingPerSecond * (attacking ? RULES.chase.attackSwingMultiplier : 1);
+      if (!s.rng.chance(swingRate * DT)) continue;
       const target = chooseBludgerTarget(s, beater);
       if (!target) continue;
       b.flight = { target: target.id, beater: beater.id, elapsed: 0 };
@@ -668,8 +748,13 @@ function updateSnitch(s: MatchState) {
     if (sn.visibleFor <= 0) {
       sn.visibleFor = 0;
       sn.seenBy = [false, false];
-      if (s.seekerChasing[0] || s.seekerChasing[1]) emit(s, 'snitchLost', 'The Snitch escapes.');
+      // A failed chase leaves every Seeker who chased shaken: slower to spot it next time.
+      const failed = ([0, 1] as TeamSide[]).filter((t) => s.seekerChasing[t]);
+      for (const t of failed) s.shakenFor[t] = RULES.chase.shakenSeconds;
+      const who = failed.map((t) => `${teamName(s, t)} Seeker`).join(' and ');
+      emit(s, 'snitchLost', failed.length ? `The Snitch escapes. ${who} shaken.` : 'The Snitch escapes.');
       s.seekerChasing = [false, false];
+      s.chase = null;
     }
     return;
   }
@@ -685,14 +770,18 @@ function updateSnitch(s: MatchState) {
   for (const team of order) {
     const sk = seekerOf(s, team);
     if (!active(sk)) continue;
-    const p = S.sightPerSecond * DT * (1 + s.t / S.sightGrowthSeconds) * (0.5 + sk.def.skill / 10);
+    const shaken = s.shakenFor[team] > 0 ? RULES.chase.shakenSightFactor : 1;
+    const p = S.sightPerSecond * DT * (1 + s.t / S.sightGrowthSeconds) * (0.5 + sk.def.skill / 10) * shaken;
     if (!s.rng.chance(p)) continue;
     sn.visibleFor = s.rng.range(S.visibleMin, S.visibleMax);
     sn.seenBy = [team === 0, team === 1];
-    sn.pos = clampToPitch(V.add(sk.pos, V.scale(randomDir(s.rng), s.rng.range(15, 30))));
+    const C = RULES.chase;
+    sn.pos = clampToPitch(V.add(sk.pos, V.scale(randomDir(s.rng), s.rng.range(C.spawnMin, C.spawnMax))));
     sn.pos.y = Math.max(3, sn.pos.y);
     sn.wanderTimer = 0;
-    emit(s, 'snitchSighted', `${teamName(s, team)} Seeker spots the Snitch!`, team, sk.id);
+    s.chase = { leader: team, startedAt: s.t };
+    emit(s, 'snitchSighted', `${teamName(s, team)} Seeker spots the Snitch! The chase is on.`, team, sk.id);
+    for (const t of s.aiTeams) aiChaseCalls(s, t);
     return;
   }
 }

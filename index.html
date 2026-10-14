@@ -20,6 +20,28 @@
 
     <ol id="feed" aria-live="polite"></ol>
 
+    <div id="chase-banner" hidden role="status"></div>
+
+    <section id="chase-calls" hidden aria-label="Chase calls">
+      <h2>Chase calls <span class="provisional">placeholder controls</span></h2>
+      <div class="call-group" role="group" aria-label="Beaters">
+        <span class="dial-name">Beaters</span>
+        <div class="choices">
+          <button data-beaters="play">Keep playing</button>
+          <button data-beaters="escort">Escort our Seeker</button>
+          <button data-beaters="attack">Attack their Seeker</button>
+        </div>
+      </div>
+      <div class="call-group" role="group" aria-label="Blockers">
+        <span class="dial-name">Chasers sent to block</span>
+        <div class="choices">
+          <button data-blockers="0">None</button>
+          <button data-blockers="1">One</button>
+          <button data-blockers="2">Two</button>
+        </div>
+      </div>
+    </section>
+
     <section id="dials" aria-label="Your tactics">
       <h2>Your tactics <span class="provisional">placeholder controls</span></h2>
       <label>

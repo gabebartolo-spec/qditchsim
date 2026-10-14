@@ -67,3 +67,10 @@ advances to the pro league.
 - 2026-10-14: First build is one match only, without dynamic camera moments.
 - 2026-10-14: Built in HTML with Three.js, TypeScript and Vite; hosted free on itch.io.
 - 2026-10-14: Desktop browser first; phones not required for now.
+- 2026-10-14: The Snitch chase is a second phase of the match. The Seeker who spots the
+  Snitch first gets a head start.
+- 2026-10-14: Quaffle play keeps going during the chase.
+- 2026-10-14: The opposition can stop the chase with Bludgers, their own Seeker cutting in,
+  and other players blocking the path.
+- 2026-10-14: The manager gets new chase-only calls during the chase.
+- 2026-10-14: A failed chase leaves the Seeker shaken, slower to spot the Snitch next time.
