@@ -4,6 +4,14 @@ The director designs this game. AI helps build it but does not make design decis
 Anything marked **Director decision** in `docs/DEVELOPMENT_PLAN.md` must not be decided
 in code or docs without the director.
 
+## Always loaded
+
+Claude Code imports these core documents in full at every session start (the `@` lines below),
+so they are part of this file: read them as rules, never skim or skip them.
+
+@docs/DEVELOPMENT_PLAN.md
+@docs/PHASE1_PROVISIONAL.md
+
 ## Hard rules
 - **Core test:** every feature must make the climb from house team to pro dynasty more
   meaningful.
